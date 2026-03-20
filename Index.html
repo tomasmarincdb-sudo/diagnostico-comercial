@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Comercial · Fernando Tomas Marin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E8344A;
+    --red-dark: #A02030;
+    --ink: #0B0B12;
+    --deep: #13131E;
+    --card: #1A1A28;
+    --card2: #20202F;
+    --white: #FFFFFF;
+    --silver: #8A93A8;
+    --gold: #C9A84C;
+    --mist: #F0F2F7;
+    --blue: #1B3A6B;
+    --teal: #0E7C7B;
+    --green: #27AE60;
+    --orange: #E67E22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(232,52,74,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 10% 80%, rgba(27,58,107,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    height: 4px;
+    background: var(--red);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    padding: 24px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--card);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--red);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--silver);
+    letter-spacing: .08em;
+    white-space: nowrap;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; animation: fadeUp .4s ease both; }
+  .screen.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── INTRO SCREEN ── */
+  .intro-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: .06em;
+    margin-top: 40px;
+    margin-bottom: 28px;
+  }
+  .intro-badge span { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; display: inline-block; }
+
+  .intro h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+  }
+  .intro h1 em { color: var(--red); font-style: normal; }
+
+  .intro-sub {
+    margin-top: 18px;
+    font-size: 16px;
+    color: var(--silver);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .intro-sub strong { color: var(--white); font-weight: 500; }
+
+  .intro-meta {
+    margin-top: 32px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--silver);
+  }
+  .meta-chip .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .btn-primary {
+    margin-top: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--red);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 16px 32px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: .02em;
+    transition: background .2s, transform .15s;
+    text-decoration: none;
+  }
+  .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); }
+  .btn-primary svg { transition: transform .2s; }
+  .btn-primary:hover svg { transform: translateX(3px); }
+
+  .author-line {
+    margin-top: 28px;
+    font-size: 12px;
+    color: var(--silver);
+  }
+  .author-line strong { color: var(--white); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--red) 0%, transparent 100%);
+    margin: 36px 0 28px;
+    opacity: .4;
+  }
+
+  /* ── LAYER LABEL ── */
+  .layer-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .layer-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--white);
+    background: var(--current-layer, var(--red));
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .layer-info {}
+  .layer-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: .06em;
+  }
+  .layer-name-en {
+    font-size: 11px;
+    color: var(--silver);
+    font-style: italic;
+    margin-top: 1px;
+  }
+
+  /* ── QUESTION ── */
+  .q-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--silver);
+    letter-spacing: .1em;
+    margin-bottom: 10px;
+  }
+  .q-text-es {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(18px, 3.5vw, 23px);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .q-text-en {
+    font-size: 13px;
+    color: var(--silver);
+    font-style: italic;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option {
+    position: relative;
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .option:hover {
+    border-color: rgba(232,52,74,0.4);
+    background: var(--card2);
+    transform: translateX(3px);
+  }
+  .option.selected {
+    border-color: var(--red);
+    background: rgba(232,52,74,0.08);
+  }
+  .option-indicator {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: border-color .2s, background .2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .option.selected .option-indicator {
+    border-color: var(--red);
+    background: var(--red);
+  }
+  .option.selected .option-indicator::after {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: white;
+  }
+  .option-texts {}
+  .opt-es {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.4;
+  }
+  .opt-en {
+    font-size: 12px;
+    color: var(--silver);
+    font-style: italic;
+    margin-top: 3px;
+  }
+
+  /* ── INSIGHT (shows after selection) ── */
+  .insight {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: rgba(201,168,76,0.07);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    display: none;
+    animation: fadeUp .3s ease;
+  }
+  .insight.visible { display: block; }
+  .insight-es { font-size: 13px; color: var(--white); font-weight: 500; line-height: 1.5; }
+  .insight-en { font-size: 11.5px; color: var(--silver); font-style: italic; margin-top: 4px; line-height: 1.5; }
+
+  /* ── NAV ── */
+  .nav {
+    margin-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn-back {
+    background: none;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    color: var(--silver);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-back:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+
+  .btn-next {
+    background: var(--red);
+    border: none;
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .2s, opacity .2s, transform .15s;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: .02em;
+  }
+  .btn-next:disabled { opacity: .3; cursor: not-allowed; transform: none !important; }
+  .btn-next:not(:disabled):hover { background: var(--red-dark); transform: translateY(-1px); }
+
+  /* ── CAPTURE SCREEN ── */
+  .capture-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    margin-top: 36px;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .capture-sub { font-size: 14px; color: var(--silver); margin-bottom: 32px; font-style: italic; }
+
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 12px; font-weight: 600; color: var(--silver); letter-spacing: .06em; margin-bottom: 8px; display: block; }
+  .field-label em { color: var(--silver); font-weight: 400; font-style: italic; }
+  .field-input {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 14px 16px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .field-input:focus { border-color: var(--red); }
+  .field-input::placeholder { color: var(--silver); }
+
+  /* ── RESULTS ── */
+  .result-score-block {
+    margin-top: 36px;
+    padding: 32px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-score-block::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+  }
+  .score-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
+  .score-label-es {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  .score-label-en {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    font-style: italic;
+    margin-top: 4px;
+  }
+  .score-desc-es {
+    margin-top: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.9);
+  }
+  .score-desc-en {
+    margin-top: 6px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* ── LAYER BREAKDOWN ── */
+  .breakdown-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--silver);
+    letter-spacing: .08em;
+    margin: 32px 0 14px;
+  }
+  .layer-bar-row {
+    margin-bottom: 14px;
+  }
+  .layer-bar-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .layer-bar-name { font-size: 13px; font-weight: 600; }
+  .layer-bar-count { font-size: 12px; color: var(--silver); }
+  .layer-bar-track {
+    height: 6px;
+    background: var(--card);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .layer-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .8s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── MARKED SYMPTOMS ── */
+  .symptoms-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--silver);
+    letter-spacing: .08em;
+    margin: 28px 0 12px;
+  }
+  .symptom-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border-left: 3px solid var(--red);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12.5px;
+    color: var(--silver);
+    margin: 0 0 6px;
+    width: 100%;
+    line-height: 1.4;
+  }
+  .symptom-tag .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+
+  /* ── CTA RESULT ── */
+  .result-cta {
+    margin-top: 32px;
+    padding: 28px;
+    background: var(--red);
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(255,255,255,0.03) 8px,
+      rgba(255,255,255,0.03) 9px
+    );
+  }
+  .cta-es {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    position: relative;
+    line-height: 1.3;
+  }
+  .cta-en {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    font-style: italic;
+    margin-top: 6px;
+    position: relative;
+  }
+  .cta-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    background: var(--white);
+    color: var(--red);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 13px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    letter-spacing: .02em;
+    transition: transform .15s;
+  }
+  .cta-btn:hover { transform: translateY(-2px); }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+  .footer-name { font-size: 12px; color: var(--silver); }
+  .footer-name strong { color: var(--white); }
+  .footer-tag {
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: .05em;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="topbar"></div>
+
+<div class="wrap">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">1 / 12</div>
+  </div>
+
+  <!-- ══ INTRO ══════════════════════════════════════════════════════════════ -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro">
+      <div class="intro-badge"><span></span> AUTODIAGNÓSTICO COMERCIAL</div>
+      <h1>¿Tu sistema comercial está <em>bajo control</em>?</h1>
+      <p class="intro-sub">
+        <strong>12 preguntas.</strong> 3 capas del sistema comercial.
+        Descubrí exactamente dónde están las brechas que frenan el crecimiento de tu empresa.
+        <br><br>
+        <em>12 questions. 3 commercial system layers. Discover exactly where the gaps are holding your company back.</em>
+      </p>
+      <div class="intro-meta">
+        <div class="meta-chip"><span class="dot" style="background:var(--blue)"></span> 3 Capas estratégicas</div>
+        <div class="meta-chip"><span class="dot" style="background:var(--red)"></span> ~3 minutos</div>
+        <div class="meta-chip"><span class="dot" style="background:var(--teal)"></span> Resultado inmediato</div>
+      </div>
+      <button class="btn-primary" onclick="startQuiz()">
+        Comenzar diagnóstico
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="author-line">por <strong>Fernando Tomas Marin</strong> · Consultor de Estructura Comercial · RevOps · Go-to-Market</div>
+    </div>
+  </div>
+
+  <!-- ══ QUESTION ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-question">
+    <div id="layerLabel" class="layer-label"></div>
+    <div class="q-number" id="qNumber"></div>
+    <div class="q-text-es" id="qTextEs"></div>
+    <div class="q-text-en" id="qTextEn"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="insight" id="insightBox">
+      <div class="insight-es" id="insightEs"></div>
+      <div class="insight-en" id="insightEn"></div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goBack()">← Anterior</button>
+      <button class="btn-next" id="btnNext" disabled onclick="goNext()">
+        Siguiente
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ CAPTURE ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-capture">
+    <div class="capture-heading">Casi listo.<br>¿A dónde enviamos tu diagnóstico?</div>
+    <div class="capture-sub">Almost done. Where should we send your diagnosis?</div>
+    <div class="field-group">
+      <label class="field-label">NOMBRE · <em>Name</em></label>
+      <input class="field-input" id="inputName" type="text" placeholder="Tu nombre">
+    </div>
+    <div class="field-group">
+      <label class="field-label">EMAIL</label>
+      <input class="field-input" id="inputEmail" type="email" placeholder="tu@email.com">
+    </div>
+    <div class="field-group">
+      <label class="field-label">WHATSAPP <em>(opcional · optional)</em></label>
+      <input class="field-input" id="inputWA" type="tel" placeholder="+54 9 ...">
+    </div>
+    <div class="nav" style="margin-top:28px">
+      <button class="btn-back" onclick="showScreen('screen-question'); currentQ = questions.length-1; renderQuestion()">← Volver</button>
+      <button class="btn-next" onclick="showResults()">
+        Ver mi resultado
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ RESULTS ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-results">
+    <div id="resultContent"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-name"><strong>Fernando Tomas Marin</strong> · linkedin.com/in/fernandotomasmarin</div>
+    <div class="footer-tag">RevOps · Go-to-Market · Estructura Comercial</div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+const layers = [
+  { num:"01", color:"#1B3A6B", es:"CAPA ESTRATÉGICA", en:"Strategic Layer",
+    sub_es:"¿Tu equipo sabe hacia dónde va y por qué?",
+    sub_en:"Does your team know where it's going and why?" },
+  { num:"02", color:"#E8344A", es:"ESTRUCTURA Y PROCESO", en:"Structure & Process",
+    sub_es:"¿El proceso existe y es repetible?",
+    sub_en:"Does the process exist and is it repeatable?" },
+  { num:"03", color:"#0E7C7B", es:"INFRAESTRUCTURA", en:"Infrastructure",
+    sub_es:"¿Las herramientas e incentivos soportan el sistema?",
+    sub_en:"Do tools and incentives support the system?" },
+];
+
+const questions = [
+  // Layer 0 — Estrategia (4 questions)
+  { layer:0,
+    es:"¿Tenés claridad sobre cuáles son tus clientes más rentables?",
+    en:"Do you have clarity on which customers are your most profitable?",
+    opts:[
+      { es:"No, vendemos a quien compra", en:"No, we sell to whoever buys", score:1 },
+      { es:"Más o menos, pero no está documentado", en:"More or less, but it's not documented", score:0.5 },
+      { es:"Sí, está bien definido y segmentado", en:"Yes, it's well defined and segmented", score:0 },
+    ],
+    insight_es:"Sin segmentación clara, el esfuerzo comercial se dispersa y el margen se erosiona.",
+    insight_en:"Without clear segmentation, commercial effort disperses and margin erodes.",
+  },
+  { layer:0,
+    es:"¿Tu equipo sabe cuál es el diferenciador real de la empresa frente a la competencia?",
+    en:"Does your team know the company's real differentiator vs. the competition?",
+    opts:[
+      { es:"No hay un diferenciador claro definido", en:"There's no clear differentiator defined", score:1 },
+      { es:"Yo lo sé pero el equipo no lo comunica bien", en:"I know it but the team doesn't communicate it well", score:0.5 },
+      { es:"Sí, todos lo conocen y lo usan en las conversaciones", en:"Yes, everyone knows it and uses it in conversations", score:0 },
+    ],
+    insight_es:"Si tu equipo no puede responderlo en 10 segundos, tampoco puede el cliente.",
+    insight_en:"If your team can't answer it in 10 seconds, neither can the customer.",
+  },
+  { layer:0,
+    es:"¿Existe un forecast o proyección de ventas confiable en tu empresa?",
+    en:"Is there a reliable sales forecast or projection in your company?",
+    opts:[
+      { es:"No, el fin de mes siempre es una sorpresa", en:"No, month-end is always a surprise", score:1 },
+      { es:"Hay estimaciones pero no son confiables", en:"There are estimates but they're not reliable", score:0.5 },
+      { es:"Sí, tenemos forecast y lo usamos para planificar", en:"Yes, we have a forecast and use it for planning", score:0 },
+    ],
+    insight_es:"Sin forecast, planificar recursos, contratar o invertir se convierte en una apuesta.",
+    insight_en:"Without a forecast, planning resources, hiring or investing becomes a gamble.",
+  },
+  { layer:0,
+    es:"¿Tenés una estrategia definida para canales de venta (directo, distribuidor, inside sales)?",
+    en:"Do you have a defined strategy for sales channels (direct, distributor, inside sales)?",
+    opts:[
+      { es:"No, usamos lo que aparece", en:"No, we use whatever comes up", score:1 },
+      { es:"Tenemos algo pero sin criterio claro", en:"We have something but without clear criteria", score:0.5 },
+      { es:"Sí, cada canal tiene su rol y métricas definidas", en:"Yes, each channel has its role and metrics defined", score:0 },
+    ],
+    insight_es:"Sin estrategia de canales, el esfuerzo y la rentabilidad son impredecibles.",
+    insight_en:"Without a channel strategy, effort and profitability are unpredictable.",
+  },
+
+  // Layer 1 — Estructura (4 questions)
+  { layer:1,
+    es:"¿Las ventas dependen de que vos o un director estén presentes en el proceso?",
+    en:"Do sales depend on you or a director being present in the process?",
+    opts:[
+      { es:"Sí, casi todo pasa por mí", en:"Yes, almost everything goes through me", score:1 },
+      { es:"Parcialmente, algunas ventas las cierra el equipo", en:"Partially, some sales the team closes alone", score:0.5 },
+      { es:"No, el equipo funciona de forma autónoma", en:"No, the team works autonomously", score:0 },
+    ],
+    insight_es:"El talento individual no escala. Un proceso documentado sí.",
+    insight_en:"Individual talent doesn't scale. A documented process does.",
+  },
+  { layer:1,
+    es:"¿Podés identificar en qué etapa del proceso se pierden la mayoría de las ventas?",
+    en:"Can you identify at what stage of the process most deals are lost?",
+    opts:[
+      { es:"No, es un misterio", en:"No, it's a mystery", score:1 },
+      { es:"Tengo intuición pero sin datos concretos", en:"I have a gut feeling but no concrete data", score:0.5 },
+      { es:"Sí, tengo métricas de conversión por etapa", en:"Yes, I have conversion metrics by stage", score:0 },
+    ],
+    insight_es:"Si no sabés dónde se rompe el funnel, no podés repararlo.",
+    insight_en:"If you don't know where the funnel breaks, you can't fix it.",
+  },
+  { layer:1,
+    es:"¿Hay una reunión de pipeline estructurada y recurrente en tu equipo?",
+    en:"Is there a structured, recurring pipeline review meeting in your team?",
+    opts:[
+      { es:"No existe nada formal", en:"Nothing formal exists", score:1 },
+      { es:"A veces, pero sin estructura fija", en:"Sometimes, but without a fixed structure", score:0.5 },
+      { es:"Sí, semanal o quincenal con agenda definida", en:"Yes, weekly or biweekly with a defined agenda", score:0 },
+    ],
+    insight_es:"Sin revisión de pipeline, los deals se caen en silencio sin que nadie lo note.",
+    insight_en:"Without pipeline review, deals die quietly without anyone noticing.",
+  },
+  { layer:1,
+    es:"¿Existe un proceso de ventas documentado y conocido por todo el equipo?",
+    en:"Is there a documented sales process known by the entire team?",
+    opts:[
+      { es:"No, cada vendedor trabaja a su manera", en:"No, each salesperson works their own way", score:1 },
+      { es:"Hay algo informal, pero no está escrito", en:"There's something informal but it's not written down", score:0.5 },
+      { es:"Sí, está documentado y el equipo lo sigue", en:"Yes, it's documented and the team follows it", score:0 },
+    ],
+    insight_es:"Sin proceso estándar no podés medir, comparar ni mejorar.",
+    insight_en:"Without a standard process you can't measure, compare or improve.",
+  },
+
+  // Layer 2 — Infraestructura (4 questions)
+  { layer:2,
+    es:"¿Tu equipo usa el CRM de forma consistente?",
+    en:"Does your team use the CRM consistently?",
+    opts:[
+      { es:"No tenemos CRM o no lo usamos", en:"We don't have a CRM or don't use it", score:1 },
+      { es:"Tenemos pero la adopción es baja", en:"We have one but adoption is low", score:0.5 },
+      { es:"Sí, está adoptado y los datos son confiables", en:"Yes, it's adopted and the data is reliable", score:0 },
+    ],
+    insight_es:"Un CRM sin adopción real es más caro que no tener CRM.",
+    insight_en:"A CRM without real adoption is costlier than no CRM at all.",
+  },
+  { layer:2,
+    es:"¿Existe un proceso de onboarding para nuevos vendedores?",
+    en:"Is there an onboarding process for new salespeople?",
+    opts:[
+      { es:"No, aprenden sobre la marcha", en:"No, they learn on the fly", score:1 },
+      { es:"Hay algo informal pero sin estructura", en:"There's something informal but without structure", score:0.5 },
+      { es:"Sí, hay un proceso definido de inducción", en:"Yes, there's a defined induction process", score:0 },
+    ],
+    insight_es:"Sin onboarding estructurado, cada incorporación tarda meses en ser productiva.",
+    insight_en:"Without structured onboarding, every hire takes months to become productive.",
+  },
+  { layer:2,
+    es:"¿Marketing y ventas trabajan alineados en tu empresa?",
+    en:"Do marketing and sales work aligned in your company?",
+    opts:[
+      { es:"Son mundos completamente separados", en:"They're completely separate worlds", score:1 },
+      { es:"Hay algo de coordinación pero no es sistemático", en:"There's some coordination but it's not systematic", score:0.5 },
+      { es:"Sí, comparten objetivos y trabajan en sintonía", en:"Yes, they share goals and work in sync", score:0 },
+    ],
+    insight_es:"Sin alineación generás leads que ventas no cierra, o cerrás sin leads calificados.",
+    insight_en:"Without alignment you generate leads sales won't close, or close without qualified leads.",
+  },
+  { layer:2,
+    es:"¿Los incentivos del equipo están alineados con los resultados que querés lograr?",
+    en:"Are the team's incentives aligned with the results you want to achieve?",
+    opts:[
+      { es:"No hay incentivos variables o son mal diseñados", en:"No variable incentives or they're poorly designed", score:1 },
+      { es:"Hay incentivos pero no reflejan las prioridades del negocio", en:"There are incentives but they don't reflect business priorities", score:0.5 },
+      { es:"Sí, los incentivos están alineados con los KPIs clave", en:"Yes, incentives are aligned with key KPIs", score:0 },
+    ],
+    insight_es:"Lo que medís y recompensás es lo que obtenés. El diseño de incentivos define comportamiento.",
+    insight_en:"What you measure and reward is what you get. Incentive design defines behavior.",
+  },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentQ = 0;
+let answers  = new Array(questions.length).fill(null);
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  // Force reflow for animation
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+function startQuiz() {
+  currentQ = 0;
+  document.getElementById('progressWrap').style.display = 'flex';
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q   = questions[currentQ];
+  const lay = layers[q.layer];
+
+  // Layer label
+  document.getElementById('layerLabel').innerHTML = `
+    <div class="layer-num" style="background:${lay.color}">${lay.num}</div>
+    <div class="layer-info">
+      <div class="layer-name">${lay.es}</div>
+      <div class="layer-name-en">${lay.en} · ${lay.sub_en}</div>
+    </div>`;
+
+  document.getElementById('qNumber').textContent = `PREGUNTA ${currentQ + 1} DE ${questions.length}`;
+  document.getElementById('qTextEs').textContent  = q.es;
+  document.getElementById('qTextEn').textContent  = q.en;
+
+  // Options
+  const cont = document.getElementById('optionsContainer');
+  cont.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option' + (answers[currentQ] === i ? ' selected' : '');
+    div.innerHTML = `
+      <div class="option-indicator"></div>
+      <div class="option-texts">
+        <div class="opt-es">${opt.es}</div>
+        <div class="opt-en">${opt.en}</div>
+      </div>`;
+    div.onclick = () => selectOption(i, lay.color);
+    cont.appendChild(div);
+  });
+
+  // Insight
+  const insightBox = document.getElementById('insightBox');
+  document.getElementById('insightEs').textContent = q.insight_es;
+  document.getElementById('insightEn').textContent = q.insight_en;
+  insightBox.classList.toggle('visible', answers[currentQ] !== null);
+
+  // Next button
+  document.getElementById('btnNext').disabled = answers[currentQ] === null;
+  document.getElementById('btnNext').textContent =
+    currentQ === questions.length - 1 ? 'Ver resultado →' : 'Siguiente →';
+
+  // Progress
+  const pct = ((currentQ + (answers[currentQ] !== null ? 1 : 0)) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${currentQ + 1} / ${questions.length}`;
+}
+
+function selectOption(i, layerColor) {
+  answers[currentQ] = i;
+  document.querySelectorAll('.option').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('insightBox').classList.add('visible');
+  document.getElementById('btnNext').disabled = false;
+
+  const pct = ((currentQ + 1) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function goNext() {
+  if (answers[currentQ] === null) return;
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    showScreen('screen-capture');
+    document.getElementById('progressFill').style.width = '100%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function goBack() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    document.getElementById('progressWrap').style.display = 'none';
+    showScreen('screen-intro');
+  }
+}
+
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function showResults() {
+  showScreen('screen-results');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Compute scores
+  let totalScore = 0;
+  const layerScores = [0, 0, 0];
+  const layerMax    = [4, 4, 4];
+  const markedSymptoms = [];
+
+  answers.forEach((ans, qi) => {
+    const q = questions[qi];
+    const score = ans !== null ? q.opts[ans].score : 0;
+    totalScore += score;
+    layerScores[q.layer] += score;
+    if (score >= 0.5) markedSymptoms.push({ es: q.es, layer: q.layer });
+  });
+
+  // Score level
+  const levels = [
+    { max:3,  color:"#27AE60", bg:"rgba(39,174,96,0.12)", border:"#27AE60",
+      es:"Base Sólida", en:"Solid Foundation",
+      desc_es:"Tu sistema comercial tiene estructura. Hay oportunidades puntuales de mejora que no requieren una intervención total.",
+      desc_en:"Your commercial system has structure. There are specific improvement opportunities that don't require a full overhaul." },
+    { max:6,  color:"#E6B800", bg:"rgba(230,184,0,0.10)", border:"#E6B800",
+      es:"Señales de Alerta", en:"Warning Signs",
+      desc_es:"Hay brechas que van a frenar el crecimiento. Es el momento de actuar antes de que el caos se amplifique al escalar.",
+      desc_en:"There are gaps that will hold back growth. Now is the time to act before chaos amplifies as you scale." },
+    { max:9,  color:"#E67E22", bg:"rgba(230,126,34,0.10)", border:"#E67E22",
+      es:"Sistema en Riesgo", en:"System at Risk",
+      desc_es:"Crecer en este estado amplifica los problemas. La estructura necesita intervención antes de cualquier iniciativa de escala.",
+      desc_en:"Growing in this state amplifies problems. The structure needs intervention before any scaling initiative." },
+    { max:12, color:"#E8344A", bg:"rgba(232,52,74,0.12)", border:"#E8344A",
+      es:"Sin Gobernabilidad Comercial", en:"No Commercial Governance",
+      desc_es:"Los resultados existen pero el sistema que los produce no es visible ni controlable. Cada mes depende del azar.",
+      desc_en:"Results exist but the system producing them is neither visible nor controllable. Every month depends on luck." },
+  ];
+
+  const level = levels.find(l => totalScore <= l.max) || levels[levels.length-1];
+  const pctScore = Math.round((totalScore / 12) * 100);
+
+  let html = `
+    <div style="margin-top:32px">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--silver);letter-spacing:.08em;margin-bottom:16px">
+        TU DIAGNÓSTICO · YOUR DIAGNOSIS
+      </div>
+    </div>
+
+    <div class="result-score-block" style="background:${level.bg};border:1.5px solid ${level.border}30">
+      <div class="score-number" style="color:${level.color}">${Math.round(totalScore * 10) / 10}<span style="font-size:32px;opacity:.4">/12</span></div>
+      <div class="score-label-es" style="color:${level.color}">${level.es}</div>
+      <div class="score-label-en">${level.en}</div>
+      <div class="score-desc-es">${level.desc_es}</div>
+      <div class="score-desc-en">${level.desc_en}</div>
+    </div>
+
+    <div class="breakdown-title">DESGLOSE POR CAPA · BREAKDOWN BY LAYER</div>
+  `;
+
+  // Layer bars
+  layers.forEach((lay, i) => {
+    const pct = Math.round((layerScores[i] / layerMax[i]) * 100);
+    const barColor = pct >= 66 ? '#E8344A' : pct >= 33 ? '#E67E22' : '#27AE60';
+    html += `
+      <div class="layer-bar-row">
+        <div class="layer-bar-header">
+          <span class="layer-bar-name" style="color:${lay.color}">${lay.es}</span>
+          <span class="layer-bar-count">${layerScores[i].toFixed(1)} / ${layerMax[i]} · ${pct}% de brecha</span>
+        </div>
+        <div class="layer-bar-track">
+          <div class="layer-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+      </div>`;
+  });
+
+  // Marked symptoms
+  if (markedSymptoms.length > 0) {
+    html += `<div class="symptoms-title">SÍNTOMAS IDENTIFICADOS · IDENTIFIED SYMPTOMS</div>`;
+    markedSymptoms.forEach(s => {
+      const col = layers[s.layer].color;
+      html += `<div class="symptom-tag" style="border-left-color:${col}"><span class="tag-dot" style="background:${col}"></span>${s.es}</div>`;
+    });
+  }
+
+  const name = document.getElementById('inputName').value || 'vos';
+
+  html += `
+    <div class="result-cta">
+      <div class="cta-es">¿Listo para gobernar tus resultados, ${name.split(' ')[0]}?</div>
+      <div class="cta-en">Ready to take control of your commercial results?</div>
+      <a class="cta-btn" href="https://www.linkedin.com/in/fernandotomasmarin/" target="_blank">
+        Escribime en LinkedIn →
+      </a>
+    </div>`;
+
+  document.getElementById('resultContent').innerHTML = html;
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.layer-bar-fill').forEach(bar => {
+      const w = bar.style.width;
+      bar.style.width = '0%';
+      setTimeout(() => { bar.style.width = w; }, 100);
+    });
+  }, 100);
+}
+</script>
+</body>
+</html>
